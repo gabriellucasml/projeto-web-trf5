@@ -32,7 +32,7 @@ public class StopwordsController {
 
     @GetMapping
     public List<Stopwords> findAll(){
-        return service.findAll();
+        return service.findAll(true);
     }
 
     @GetMapping(path = "/{palavra}")

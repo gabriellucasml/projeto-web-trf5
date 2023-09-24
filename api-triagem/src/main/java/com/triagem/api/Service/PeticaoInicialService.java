@@ -6,10 +6,14 @@ import com.triagem.api.Model.PeticaoInicial;
 import com.triagem.api.Model.Processo;
 import com.triagem.api.Repository.PeticaoInicialRepository;
 import com.triagem.api.Repository.ProcessoRepository;
+import org.hibernate.Filter;
+import org.hibernate.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +21,8 @@ import java.util.Optional;
 public class PeticaoInicialService {
     PeticaoInicialRepository repository;
     ProcessoRepository processoRepository;
+    @Autowired
+    EntityManager entityManager;
 
     public PeticaoInicialService(PeticaoInicialRepository repository, ProcessoRepository processoRepository){
         this.repository = repository;
@@ -38,9 +44,14 @@ public class PeticaoInicialService {
         return peticaoInicial.get();
     }
 
-    public List<PeticaoInicial> findAll(){
+    public List<PeticaoInicial> findAll(boolean isDeleted){
+        Session session = entityManager.unwrap(Session.class);
+        Filter filter = session.enableFilter("deletedPeticaoInicialFilter");
+        filter.setParameter("isDeleted", isDeleted);
         Sort sort = Sort.by("id").descending();
-        return this.repository.findAll(sort);
+        List<PeticaoInicial> peticaoIncial = repository.findAll(sort);
+        session.disableFilter("deletedPeticaoInicialFilter");
+        return peticaoIncial;
     }
     //Atualizar
 

@@ -34,7 +34,7 @@ public class ProcessoController {
 
     @GetMapping
     public List<Processo> listarTodos(){
-        return service.findAll();
+        return service.findAll(true);
     }
 
     /**

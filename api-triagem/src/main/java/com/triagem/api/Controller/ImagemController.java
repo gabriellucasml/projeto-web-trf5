@@ -63,7 +63,7 @@ public class ImagemController {
 
     @GetMapping
     public List<ImagemResponse> listarTodos(){
-        return service.findAll()
+        return service.findAll(true)
                 .stream()
                 .map(this::mapToFileResponse)
                 .collect(Collectors.toList());

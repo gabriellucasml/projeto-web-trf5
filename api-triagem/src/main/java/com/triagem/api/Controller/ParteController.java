@@ -36,14 +36,14 @@ public class ParteController {
 
     @GetMapping
     public List<Parte> listarTodos(){
-        return service.findAll();
+        return service.findAll(true);
     }
 
     /**
      * DELETE METHOD
      */
-    @DeleteMapping
-    public void remover(Long id){
+    @DeleteMapping("/{id}")
+    public void remover(@PathVariable Long id){
         service.delete(id);
     }
 }

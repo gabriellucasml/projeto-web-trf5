@@ -3,11 +3,14 @@ package com.triagem.api.Service;
 
 import com.triagem.api.Model.Imagem;
 import com.triagem.api.Repository.ImagemRepository;
+import org.hibernate.Filter;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +19,9 @@ import java.util.Optional;
 public class ImagemService {
     @Autowired
     private ImagemRepository repository;
+
+    @Autowired
+    private EntityManager entityManager;
 
     public ImagemService(ImagemRepository repository){
         this.repository = repository;
@@ -37,8 +43,13 @@ public class ImagemService {
         return result;
     }
 
-    public List<Imagem> findAll(){
-        return repository.findAll();
+    public List<Imagem> findAll(boolean isDeleted){
+        Session session = entityManager.unwrap(Session.class);
+        Filter filter = session.enableFilter("deletedImagemFilter");
+        filter.setParameter("isDeleted", isDeleted);
+        List<Imagem> imagens = repository.findAll();
+        session.disableFilter("deletedImagemFilter");
+        return imagens;
     }
     //Atualizar
     // TODO

@@ -38,7 +38,7 @@ public class ParteDemoController {
 
     @GetMapping
     public List<ParteDemo> findAll(){
-        return service.findAll();
+        return service.findAll(true);
     }
 
     @GetMapping(path = "/{id}")

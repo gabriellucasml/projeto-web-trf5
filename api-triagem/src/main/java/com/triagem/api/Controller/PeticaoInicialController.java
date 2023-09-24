@@ -39,7 +39,7 @@ public class PeticaoInicialController {
 
     @GetMapping
     public List<PeticaoInicial> listarTodos(){
-        return service.findAll();
+        return service.findAll(true);
     }
 
     //(Example<S> example, Sort sort)
