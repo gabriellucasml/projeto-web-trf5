@@ -1,31 +1,33 @@
 package com.triagem.api.Service;
-
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import com.triagem.api.config.LoginDTO;
-import com.triagem.api.Service.TokenService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.stereotype.Service;
 
-@RestController
-public class AuthController {
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.stream.Collectors;
 
-    private final TokenService tokenService;
-    private final AuthenticationManager authenticationManager;
-
-    public AuthController(TokenService tokenService, AuthenticationManager authenticationManager) {
-        this.tokenService = tokenService;
-        this.authenticationManager = authenticationManager;
+@Service
+public class TokenService {
+    private final JwtEncoder encoder;
+    public TokenService(JwtEncoder encoder) {
+        this.encoder = encoder;
     }
-    @PostMapping("/token")
-    public String token(@RequestBody LoginDTO loginDTO) {
-        Authentication authentication = authenticationManager
-                .authenticate(
-                        new UsernamePasswordAuthenticationToken(loginDTO.username(), loginDTO.password())
-                );
-
-        return tokenService.generateToken(authentication);
+    public String generateToken(Authentication authentication) {
+        Instant now = Instant.now();
+        String scope = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" "));
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("self")
+                .issuedAt(now)
+                .expiresAt(now.plus(1, ChronoUnit.HOURS))
+                .subject(authentication.getName())
+                .claim("scope", scope)
+                .build();
+        return this.encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 }
